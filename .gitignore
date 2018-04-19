@@ -1,0 +1,7 @@
+*.o
+*.elf
+*.d
+.DS_Store
+.*.swp
+tags
+ctags
