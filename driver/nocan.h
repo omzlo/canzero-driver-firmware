@@ -80,8 +80,9 @@ void nocan_error_clear(void);
 typedef struct __attribute__((packed)) {
     uint8_t signature[4];
     volatile uint8_t STATUS;         // status register
-    uint8_t NODE_ID;
+    uint8_t VERSION;
     uint8_t UDID[8];
+    uint8_t EXT_UDID[4];
     uint32_t CAN_RX_COUNT;
     uint32_t CAN_TX_COUNT;
 } nocan_registers_t;

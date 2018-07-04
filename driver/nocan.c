@@ -5,50 +5,11 @@
 #include "systick.h"
 #include "spi_slave.h"
 #include "chip_options.h"
+#include "version.h"
 
 nocan_registers_t NOCAN_REGS;
 
 /* * * */
-
-/*
-//void nocan_status_set(uint8_t status)
-{
-    __disable_irq();
-    NOCAN_REGS.STATUS |= status;
-    __enable_irq();
-    if ((NOCAN_REGS.STATUS & NOCAN_STATUS_TX_PENDING)!=0)
-    {
-        gpio_write_tx_int(LOW);
-    }
-    if ((NOCAN_REGS.STATUS & NOCAN_STATUS_RX_PENDING)!=0)
-    {
-        gpio_write_rx_int(LOW);
-    }
-    if ((NOCAN_REGS.STATUS & NOCAN_STATUS_LED)!=0)
-    {
-        gpio_write_led(HIGH);
-    }
-}
-
-//void nocan_status_clear(uint8_t status)
-{
-    __disable_irq();
-    NOCAN_REGS.STATUS &= ~status;
-    __enable_irq();
-    if ((NOCAN_REGS.STATUS & NOCAN_STATUS_TX_PENDING)==0)
-    {
-        gpio_write_tx_int(HIGH);
-    }
-    if ((NOCAN_REGS.STATUS & NOCAN_STATUS_RX_PENDING)==0)
-    {
-        gpio_write_rx_int(HIGH);
-    }
-    if ((NOCAN_REGS.STATUS & NOCAN_STATUS_LED)==0)
-    {
-        gpio_write_led(LOW);
-    }
-}
-*/
 
 int nocan_error_set(uint8_t ecode)
 {
@@ -95,11 +56,18 @@ int nocan_open(void)
     NOCAN_REGS.UDID[6] = (_compact_number(CHIP_UDID[8])<<4) | _compact_number(CHIP_UDID[9]);
     NOCAN_REGS.UDID[7] = (_compact_number(CHIP_UDID[10])<<4) | _compact_number(CHIP_UDID[11]);
 
+    NOCAN_REGS.EXT_UDID[0] = CHIP_UDID[8];
+    NOCAN_REGS.EXT_UDID[1] = CHIP_UDID[9];
+    NOCAN_REGS.EXT_UDID[2] = CHIP_UDID[10];
+    NOCAN_REGS.EXT_UDID[3] = CHIP_UDID[11];
+
+
     NOCAN_REGS.signature[0] = 'N';
     NOCAN_REGS.signature[1] = 'C';
     NOCAN_REGS.signature[2] = 'A';
     NOCAN_REGS.signature[3] = 'N';
-    //NOCAN_REGS.GUARD = 0x42;
+    
+    NOCAN_REGS.VERSION = STM32_DRIVER_VERSION;
 
     return 0;
 }

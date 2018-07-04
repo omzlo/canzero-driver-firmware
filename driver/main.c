@@ -52,7 +52,7 @@ int main(void)
                   for (int i=0;i<sizeof(NOCAN_REGS);i++)
                       usart_printf("%x ", ((uint8_t *)&NOCAN_REGS)[i]);
                   usart_printf("\nstat  : %x (%s)", NOCAN_REGS.STATUS, nocan_status_string());
-                  usart_printf("\nnid   : %x", NOCAN_REGS.NODE_ID);
+                  usart_printf("\nver   : %x", NOCAN_REGS.VERSION);
                   usart_printf("\ntx/rx : %u/%u", NOCAN_REGS.CAN_TX_COUNT, NOCAN_REGS.CAN_RX_COUNT);
                   break;
               case 'f':
@@ -75,7 +75,7 @@ int main(void)
                   break;
               case 'c':
                   usart_printf("\nconnecting: ");
-                  if (can_sys_send(NOCAN_REGS.NODE_ID, NOCAN_SYS_ADDRESS_REQUEST, 0, NOCAN_REGS.UDID, 8)<0) 
+                  if (can_sys_send(0, NOCAN_SYS_ADDRESS_REQUEST, 0, NOCAN_REGS.UDID, 8)<0) 
                       usart_printf("FAIL");
                   else
                       usart_printf("OK");
