@@ -76,7 +76,7 @@ $(BIN):	$(ELF)
 	$(AS) $< -o $@
 
 clean:
-	rm -f $(OBJS) $(OBJS:.o=.d) $(ELF) startup_stm32f* $(CLEANOTHER)
+	rm -f $(OBJS) $(OBJS:.o=.d) $(ELF) $(BIN) startup_stm32f* $(CLEANOTHER)
 
 bin:	$(BIN)
 
