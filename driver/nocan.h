@@ -82,7 +82,7 @@ typedef struct __attribute__((packed)) {
     volatile uint8_t STATUS;         // status register
     uint8_t VERSION;
     uint8_t UDID[8];
-    uint8_t EXT_UDID[4];
+    uint8_t REAL_UDID[12];
     uint32_t CAN_RX_COUNT;
     uint32_t CAN_TX_COUNT;
 } nocan_registers_t;

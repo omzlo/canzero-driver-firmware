@@ -288,7 +288,7 @@ op_filter_write:
         offset = 3*param+2;
         return;
     }
-    else if (offset<3*CAN_FILTER_COUNT+2) 
+    else if (offset<3*CAN_FILTER_COUNT+3) 
     {
         SPI_WRITE(SPI_OK_BYTE);
         can_filter_buffer[offset-3]=param;
