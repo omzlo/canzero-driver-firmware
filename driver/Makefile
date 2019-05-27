@@ -9,7 +9,7 @@ ASFLAGS = -g
 # object files
 
 OBJS=  $(STARTUP) main.o
-OBJS+= system.o usart.o can.o spi_slave.o systick.o chip_options.o gpio.o nocan.o debug_event.o 
+OBJS+= system.o usart.o can.o spi_slave.o systick.o chip_options.o gpio.o nocan.o 
 
 # include common make file
 

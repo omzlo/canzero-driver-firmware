@@ -6,15 +6,11 @@
 #include "gpio.h"
 #include "nocan.h"
 #include "usart.h"
-#include "debug_event.h"
 
 int main(void)
 {
   int n = 0;
   char c;
-
-  debug_init();
-  debug_push(DEVENT_START, 0x12345678);
 
   systick_init();
   
@@ -87,7 +83,7 @@ int main(void)
                   break;
               case 'r':
                   gpio_clear_led();
-                  usart_printf("\nreseting atmega328pb");
+                  usart_printf("\nreseting SAMD21");
                   gpio_clear_reset();
                   for (uint32_t count=0;count<10000;count++) asm("nop");
                   gpio_set_reset();
@@ -98,14 +94,6 @@ int main(void)
                   break;
           }
           usart_printf("\n[h,b,B,c,d,f,i,q,r,z]?");
-      }
-      else
-      {
-          uint32_t h,l;
-          if (debug_pop(&h,&l) == 0)
-          {
-            usart_printf("\n#%x #%x", h, l);
-          }
       }
   }
 }

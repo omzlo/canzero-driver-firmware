@@ -35,4 +35,6 @@ void can_node_filter(uint8_t filter);
 
 int can_sys_send(uint8_t node_id, uint8_t fn, uint8_t param, uint8_t *data, uint8_t data_len);
 
+int can_send_ping_ack(uint8_t node_id);
+
 #endif

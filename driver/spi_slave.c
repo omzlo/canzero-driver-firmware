@@ -2,7 +2,6 @@
 #include "spi_slave.h"
 #include "nocan.h"
 #include "gpio.h"
-#include "debug_event.h"
 
 #define SPI_WRITE(b) (*(uint8_t *)&(SPI1->DR) = (uint8_t)(b))
 

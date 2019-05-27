@@ -3,7 +3,6 @@
 #include "stm32f0_helpers.h"
 #include "nocan.h"
 #include "gpio.h"
-#include "debug_event.h"
 
 /************************************************
  *
@@ -191,8 +190,6 @@ static int can_sys_process(const can_packet_t *packet)
     int8_t eid_param = (int8_t)EID_GET_PARAMETER(eid);
     uint8_t eid_func = EID_GET_FUNCTION(eid);
 
-    debug_push(DEVENT_CAN_RECV, eid);
-
     if (eid_func == NOCAN_SYS_NODE_BOOT_REQUEST)
     {
         if ((eid_param&0x01)!=0)
@@ -208,9 +205,14 @@ static int can_sys_process(const can_packet_t *packet)
         }
         return NOCAN_OK;
     }
+    if (eid_func == NOCAN_SYS_NODE_PING)
+    {
+        // NOTE: sys we want to process a sys messages and send a response
+        // we use another CAN mailbox (mbox 1) to avoid conflicts with ongoing 
+        // transmits (in mbox 0).
 
-    // TODO: if we want to process other sys messages and send a response
-    // we could use another can mailbox to avoid conflicts with ongoing transmits
+        return can_send_ping_ack(EID_GET_NODE_ID(eid));
+    }
 
     return can_mux_process(packet);
 }
@@ -251,11 +253,11 @@ int can_send_frame(void)
         return -1;
 
     if (can_tx_head==5)
-        eid |= (1<<28);     // FIRST BIT
+        eid |= EID_FIRST_PACKET_MASK;     // FIRST BIT
 
     if (can_tx_tail - can_tx_head<=8)
     {
-        eid |= (1<<20);     // LAST BIT
+        eid |= EID_LAST_PACKET_MASK;     // LAST BIT
         dlc = can_tx_tail - can_tx_head;
     }
     else
@@ -263,8 +265,6 @@ int can_send_frame(void)
         dlc = 8;
     }
 
-    debug_push(DEVENT_CAN_SEND, eid);
-    
     const uint8_t *data = can_tx_buffer + can_tx_head;
 
     CAN->sTxMailBox[transmit_mailbox].TIR = (eid<<3) | (1<<2); 
@@ -308,13 +308,37 @@ int can_sys_send(uint8_t node_id, uint8_t fn, uint8_t param, uint8_t *data, uint
 
     if ((NOCAN_REGS.STATUS & NOCAN_STATUS_TX_PENDING)!=0)
         return -1;
-    can_tx_eid = ((uint32_t)node_id<<21) | (1<<18) | ((uint32_t)fn<<8) | (uint32_t)param;
+    can_tx_eid = ((uint32_t)node_id<<21) | EID_SYS_MASK | ((uint32_t)fn<<8) | (uint32_t)param;
     for (i=0; i<data_len; i++)
         can_tx_buffer[5+i] = data[i];
     can_tx_head = 5;
     can_tx_tail = 5 + data_len;
     return can_send_frame();
 }
+
+/** Response to PING **/
+
+int can_send_ping_ack(uint8_t node_id) 
+{
+    uint32_t eid;
+
+    // check if transmit mailbox 1 is avaiable
+    if ((CAN->TSR&CAN_TSR_TME1) != CAN_TSR_TME1)
+        return -1;
+
+    // make a simple ping ack packet 
+    eid = EID_FIRST_PACKET_MASK | ((uint32_t)node_id<<21) | EID_LAST_PACKET_MASK | EID_SYS_MASK | ((uint32_t)NOCAN_SYS_NODE_PING_ACK<<8);
+
+    CAN->sTxMailBox[1].TIR = (eid<<3) | (1<<2); 
+    CAN->sTxMailBox[1].TDTR &= (uint32_t)0xFFFFFFF0;
+    CAN->sTxMailBox[1].TDTR |= 0;
+    CAN->sTxMailBox[1].TDLR = 0;
+    CAN->sTxMailBox[1].TDHR = 0;
+    CAN->sTxMailBox[1].TIR |= 1; // (1<<0) is TXRQ flag (transmit request)
+    
+    return 0;
+}
+  
 
 /************************************************
  * 
