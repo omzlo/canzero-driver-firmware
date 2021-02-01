@@ -21,12 +21,13 @@ void gpio_init(void)
   // enable clock on GPIOB
   RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
 
+  // set it to high
+  GPIOB->BSRR = (1<<RESET_Pin);
+
   // configure pins on GPIOB
   GPIO_CONFIGURE_OUTPUT(GPIOB, CAN_LED_Pin, GPIO_SPEED_LOW, GPIO_PUSH_PULL);
   GPIO_CONFIGURE_OUTPUT(GPIOB, RESET_Pin, GPIO_SPEED_LOW, GPIO_OPEN_DRAIN);
   
-  // set it to high
-  GPIOB->BSRR = (1<<RESET_Pin);
 }
 
 
